@@ -1,0 +1,14 @@
+# Local Postgres matching DATABASE_URL in .env.example. Start with: docker compose up -d
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: bitc
+      POSTGRES_PASSWORD: bitc
+      POSTGRES_DB: bitc
+    ports:
+      - "5432:5432"
+    volumes:
+      - bitc-data:/var/lib/postgresql/data
+volumes:
+  bitc-data:

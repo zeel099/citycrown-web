@@ -1,0 +1,45 @@
+/* Maps: the owner's location picker and the business location on the board. */
+
+.leaflet-host{width:100%;border:1px solid var(--line);border-radius:var(--r-input);background:var(--sunken);overflow:hidden;z-index:0}
+.leaflet-host.is-loading{animation:map-pulse 1.2s ease-in-out infinite alternate}
+@keyframes map-pulse{from{opacity:.6}to{opacity:1}}
+.leaflet-container{font-family:var(--body)}
+
+/* A coral teardrop pin drawn in CSS (no image files to bundle). */
+.map-pin{background:none;border:0}
+.map-pin span{position:absolute;left:2px;top:0;width:24px;height:24px;border:3px solid #fff;border-radius:50% 50% 50% 0;background:var(--accent);box-shadow:0 2px 6px rgba(34,30,27,.35);transform:rotate(-45deg)}
+.leaflet-marker-draggable{cursor:grab}
+
+/* location picker */
+.location-picker{display:flex;flex-direction:column;gap:8px}
+.location-find{display:flex;flex-direction:column;gap:10px}
+.location-search{position:relative}
+.location-results{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:20;margin:0;padding:6px;list-style:none;border:1px solid var(--line);border-radius:var(--r-input);background:var(--surface);box-shadow:0 12px 30px rgba(34,30,27,.12)}
+.location-results button{display:block;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;font:400 14px/1.4 var(--body);color:var(--ink);text-align:left;cursor:pointer}
+.location-results button:hover,.location-results button:focus-visible{background:var(--sunken)}
+.location-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.location-link{display:flex;gap:8px}
+.location-link .input{flex:1;min-width:0}
+.location-chosen{display:flex;flex-direction:column;gap:8px}
+.location-address{display:flex;align-items:flex-start;gap:8px;font-size:15px;line-height:1.45}
+.location-address .link-btn{margin-left:auto;flex:none}
+.location-pin{flex:none;width:12px;height:12px;margin-top:4px;border:2px solid #fff;border-radius:50% 50% 50% 0;background:var(--accent);box-shadow:0 0 0 1px var(--accent);transform:rotate(-45deg)}
+.location-map{height:220px}
+
+/* business location on the board */
+.distance-control{display:inline-flex;align-items:center;gap:8px}
+.distance-note{font-size:13px;color:var(--muted)}
+.board-note-alert{margin-top:-8px;text-align:center}
+.board-note .location-pin{width:10px;height:10px;margin:0 2px 0 0}
+.listing-distance{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:var(--ink)}
+.listing-distance .location-pin{width:9px;height:9px;margin-top:0}
+.listing-location{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 16px;align-items:center;padding:16px 22px;border-top:1px solid var(--line)}
+.listing.is-first .listing-location{border-top-color:var(--accent-line)}
+.listing-location .location-address{margin:0}
+.listing-location .listing-map{grid-column:1/-1;height:180px}
+.listing-location-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.listing-location-meta .muted{font-size:13.5px}
+@media (max-width:640px){
+  .listing-location{grid-template-columns:minmax(0,1fr);padding:14px 16px}
+  .listing-location .btn{justify-self:start}
+}

@@ -1,0 +1,217 @@
+/* Design system from the Figma style sheet (00 Style sheet), with a dark theme from the same tokens.
+   Outfit for headings, buttons and amounts; Figtree for body text.
+   One coral accent marks rank #1 and paying. Area styles live in src/styles/. */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#FBF9F7;            /* page */
+  --surface:#FFFFFF;       /* cards */
+  --sunken:#F4F1ED;        /* category bar */
+  --line:#ECE6DF;          /* borders */
+  --ink:#221E1B;           /* text */
+  --muted:#736D67;         /* secondary text */
+  --faint:#A8A29B;         /* meta text, unranked */
+  --accent:#E5603F;        /* #1, pay, prices */
+  --accent-strong:#C94B2C; /* links */
+  --accent-press:#C94B2C;  /* hover on coral buttons */
+  --accent-soft:#FBE8E1;   /* #1 card */
+  --accent-line:#F5D3C7;   /* #1 card border */
+  --accent-tint:#FDF4F0;   /* selected option */
+  --accent-disabled:#F2B6A6;
+  --good:#1D8150;          /* verified, live */
+  --good-soft:#E5F3EB;     /* success */
+  --danger:#C2410C;        /* errors */
+  --danger-soft:#FDEDE4;
+  --warn:#9A5B00;          /* link found but not confirmed */
+  --head:var(--font-outfit),system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:var(--font-figtree),system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r-card:18px;
+  --r-input:12px;
+  --r-pill:999px;
+  color-scheme:light;
+}
+/* Dark theme: the header's moon button sets data-theme; until then it follows the device.
+   Screen only, so printed receipts stay dark text on white. */
+@media screen{
+  :root[data-theme="dark"]{
+    --bg:#141110;--surface:#1E1A17;--sunken:#28231F;--line:#38312B;--ink:#F4EFEA;--muted:#B3AAA2;--faint:#8D847B;
+    --accent:#EC6B4A;--accent-strong:#F7957A;--accent-press:#D2553A;--accent-soft:#3A2119;--accent-line:#5E3022;--accent-tint:#2A1913;--accent-disabled:#6E3B2D;
+    --good:#4FC48C;--good-soft:#14301F;--danger:#F28A5B;--danger-soft:#3A1E14;--warn:#E6A645;
+    color-scheme:dark;
+  }
+}
+@media screen and (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141110;--surface:#1E1A17;--sunken:#28231F;--line:#38312B;--ink:#F4EFEA;--muted:#B3AAA2;--faint:#8D847B;
+    --accent:#EC6B4A;--accent-strong:#F7957A;--accent-press:#D2553A;--accent-soft:#3A2119;--accent-line:#5E3022;--accent-tint:#2A1913;--accent-disabled:#6E3B2D;
+    --good:#4FC48C;--good-soft:#14301F;--danger:#F28A5B;--danger-soft:#3A1E14;--warn:#E6A645;
+    color-scheme:dark;
+  }
+}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-family:var(--head);font-weight:700;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 1440 frame: 116px gutters around a 1208px column. */
+.inner{max-width:1240px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.site-main{display:block}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* type */
+.display{font:700 56px/1.05 var(--head);letter-spacing:-.01em}
+.h1{font:700 42px/1.5 var(--head);letter-spacing:-.01em}
+.h2{font:700 40px/1.5 var(--head);letter-spacing:-.01em}
+.h3{font:700 18px/1.5 var(--head);letter-spacing:-.01em}
+.card-title{font:600 19px/1.25 var(--head)}
+.lead{font-size:17px;line-height:1.5;color:var(--muted)}
+.muted{color:var(--muted)}
+.eyebrow{font:600 12px/1.5 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.eyebrow-lg{font:600 17px/1.5 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.price{color:var(--accent);font-family:var(--head);font-weight:700}
+.crumbs{font-size:14px;color:var(--muted)}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--accent-strong)}
+.text-link{color:var(--accent-strong);text-underline-offset:3px}
+
+/* header */
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:22px;padding-bottom:14px}
+.site-header-start{display:flex;align-items:center;gap:16px;min-width:0}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;font:800 14px/1 var(--head);letter-spacing:-.03em}
+.brand-name{font:700 22px/1 var(--head);letter-spacing:-.02em;white-space:nowrap}
+.ticker{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface);font-size:13.5px;line-height:20.25px;color:var(--muted);text-decoration:none;white-space:nowrap}
+a.ticker:hover{border-color:var(--muted)}
+.ticker b{font-weight:600;color:var(--good)}
+.ticker-dot{width:8px;height:8px;margin-right:2px;border-radius:4px;background:var(--good);box-shadow:0 0 0 3px var(--good-soft);flex:none}
+.ticker-more{font-weight:500;color:var(--ink)}
+.site-nav{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.site-nav>a:not(.btn){font:500 15.5px/1.3 var(--head);color:var(--muted);text-decoration:none}
+.site-nav>a:not(.btn):hover,.site-nav>a[aria-current="page"]{color:var(--ink)}
+.site-nav-icons{display:inline-flex;align-items:center;gap:2px;margin-inline:-6px}
+.icon-btn{display:grid;place-items:center;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);cursor:pointer}
+.icon-btn:hover,.icon-btn[aria-current="page"]{background:var(--sunken);color:var(--ink)}
+.icon-btn svg{width:20px;height:20px}
+.nav-break{display:none}
+/* the nav fits beside the brand down to about 1160px; below that it gets its own row */
+@media (max-width:1160px){
+  .site-header{flex-wrap:wrap;row-gap:12px}
+}
+/* tablet: brand row, then links; phone (Figma 390 frame): everything stacked */
+@media (max-width:860px){
+  .site-header{flex-direction:column;align-items:flex-start;gap:16px}
+  .site-header-start{flex-wrap:wrap}
+}
+@media (max-width:540px){
+  .site-header-start{flex-direction:column;align-items:flex-start}
+  /* the zero-height break forces the button onto its own row, 22px below the links */
+  .site-nav{row-gap:8px}
+  .site-nav>.btn{margin-top:14px}
+  .nav-break{display:block;flex-basis:100%;height:0}
+}
+
+/* footer */
+.site-footer{border-top:1px solid var(--line);padding:28px 0 44px;font-size:14px;line-height:21px;color:var(--muted)}
+.site-footer .inner{display:flex;flex-direction:column;gap:8px}
+.site-footer b{color:var(--ink);font-weight:700}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border:1px solid transparent;border-radius:var(--r-pill);font:600 15px/1 var(--head);text-decoration:none;white-space:nowrap;cursor:pointer;transition:background-color .15s,border-color .15s}
+.btn-primary,.btn-pay{background:var(--accent);color:#fff}
+.btn-primary:hover,.btn-pay:hover{background:var(--accent-press)}
+.btn-primary:disabled,.btn-pay:disabled,.btn-primary[aria-disabled="true"]{background:var(--accent-disabled);cursor:not-allowed}
+.btn-secondary,.btn-line{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn-secondary:hover,.btn-line:hover{border-color:var(--muted)}
+.btn-secondary:disabled{color:var(--faint);cursor:not-allowed}
+.btn-danger{background:var(--surface);border-color:var(--danger);color:var(--danger)}
+.btn-sm{padding:8px 14px;font-size:13.5px}
+.link-btn{background:none;border:0;padding:0;font:500 13.5px/1.2 var(--body);color:var(--muted);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.link-btn:hover{color:var(--ink)}
+
+/* amount stepper: − ₹510 + */
+.stepper{display:inline-flex;align-items:center;gap:10px}
+.stepper button{display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:15px;background:var(--accent-soft);color:var(--accent);font:700 18px/1 var(--head);cursor:pointer}
+.stepper button:hover{background:var(--accent-line)}
+.stepper button:disabled{opacity:.5;cursor:not-allowed}
+.stepper output,.stepper .stepper-value{font:700 32px/1.25 var(--head);color:var(--accent);font-variant-numeric:tabular-nums}
+
+/* choice chips: Reach #1 · ₹510 */
+.option{display:inline-flex;align-items:center;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface);font:500 14px/16.8px var(--body);color:var(--ink);cursor:pointer;white-space:nowrap}
+.option b{font-weight:600;color:var(--accent-strong)}
+.option:hover{border-color:var(--accent-line)}
+.option[aria-pressed="true"],.option[aria-checked="true"]{border-color:var(--accent);background:var(--accent-tint)}
+
+/* segmented control: All-time | ● Today */
+.seg{display:inline-flex;gap:2px;padding:4px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface)}
+.seg a,.seg button{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:0;border-radius:var(--r-pill);background:none;font:500 16px/1 var(--head);color:var(--muted);text-decoration:none;cursor:pointer}
+.seg a:hover,.seg button:hover{color:var(--ink)}
+.seg [aria-current="page"],.seg [aria-pressed="true"],.seg [aria-selected="true"]{background:var(--accent);color:#fff}
+.seg .live-dot{width:7px;height:7px;border-radius:3.5px;background:currentColor}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:24px}
+.card-sm{padding:22px}
+
+/* forms */
+.form-grid{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.form-grid .full{grid-column:1/-1}
+@media (max-width:620px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>label,.field-label{font:600 13.5px/20.25px var(--body);color:var(--ink)}
+.input,.field input:not([type=checkbox]):not([type=radio]),.field select,.field textarea{width:100%;min-height:44px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-input);background:var(--bg);font:400 15px/1.2 var(--body);color:var(--ink)}
+.field textarea{min-height:88px;resize:vertical;line-height:1.45}
+.field select{appearance:none;padding-right:36px;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 19px) 50%,calc(100% - 14px) 50%;background-size:5px 5px;background-repeat:no-repeat}
+.input::placeholder,.field input::placeholder,.field textarea::placeholder{color:var(--faint)}
+.input:focus,.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field-hint{font-size:13px;color:var(--muted)}
+.field-error{font-size:13px;color:var(--danger)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--muted);cursor:pointer}
+.check input{margin:3px 0 0;width:16px;height:16px;accent-color:var(--accent);flex:none}
+
+/* messages */
+.notice{padding:12px 14px;border-radius:var(--r-input);font-size:14.5px;line-height:1.45}
+.notice-good{background:var(--good-soft);color:var(--good)}
+.notice-error{background:var(--danger-soft);color:var(--danger)}
+.notice-info{background:var(--sunken);color:var(--ink)}
+
+/* badges */
+.tag{display:inline-block;padding:2px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font:600 11px/16.5px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.tag-live{border-color:var(--good);color:var(--good)}
+.tag-banned,.tag-danger{border-color:var(--danger);color:var(--danger)}
+.badge-verified{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:var(--r-pill);background:var(--good-soft);font:600 12px/1.25 var(--head);color:var(--good);white-space:nowrap}
+.badge-verified svg{width:10px;height:10px;flex:none}
+.pill-accent{display:inline-block;padding:4px 12px;border-radius:var(--r-pill);background:var(--accent);font:600 13px/1.25 var(--head);color:#fff;white-space:nowrap}
+
+/* tables (my bids, admin) */
+/* position:relative keeps absolutely positioned children (e.g. .visually-hidden labels) inside the scroller */
+.table-wrap{position:relative;overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface)}
+.table{width:100%;border-collapse:collapse;font-size:15px}
+.table th{padding:14px 18px;border-bottom:1px solid var(--line);text-align:left;font:600 12px/1.5 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.table td{padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+.table tr:last-child td{border-bottom:0}
+.table .num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* Wide tables become one labelled card per row on phones. Add .table-stack to the
+   .table-wrap and a data-label (the column name) to each cell. */
+@media (max-width:640px){
+  .table-wrap.table-stack{overflow:visible;border:0;border-radius:0;background:none}
+  .table-stack .table,.table-stack tbody,.table-stack tr,.table-stack td,.table-stack tbody th{display:block;width:100%}
+  .table-stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .table-stack tr{padding:4px 16px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface)}
+  .table-stack tr+tr{margin-top:12px}
+  .table-stack td,.table-stack tbody th{padding:10px 0;border-bottom:1px solid var(--line);text-align:left}
+  .table-stack tr>:last-child,.table-stack tr:last-child>td{border-bottom:0}
+  .table-stack tr:last-child>:not(:last-child){border-bottom:1px solid var(--line)}
+  .table-stack [data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;font:600 11px/1.5 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  /* .stack-grid: compact two-column card, first cell as the title, last cell full width */
+  .stack-grid tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;padding:12px 16px}
+  .stack-grid td,.stack-grid tbody th{padding:6px 0;border-bottom:0!important}
+  .stack-grid tr>:first-child{grid-column:1/-1;padding-bottom:8px;font-weight:600}
+  .stack-grid tr>:last-child:nth-child(odd){grid-column:1/-1}
+  .table-stack .num{text-align:left}
+}
