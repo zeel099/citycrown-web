@@ -32,12 +32,23 @@ npm run db:seed
 npm run dev
 ```
 
-Open http://localhost:3000. The seed creates Surat, Ahmedabad and Mumbai with 10 categories each, all-time and daily
-boards and free seed listings, plus Pune, Delhi, Bengaluru, Hyderabad, Chennai, Kolkata, Gurugram, Noida, Mohali,
-Chandigarh, Kochi, Indore and Jaipur with empty boards (every city has its centre, used by the location check; staff
-add more in /admin/settings). Outside production it also adds sample bids (every bid is at
-least ₹100), sample Google ratings, two verified Surat cafes, three verifications in progress, three paid bids with GST
-receipts, a listing waiting for review and an open report.
+Open http://localhost:3000. The seed creates the launch data and nothing else: 16 cities (Surat, Ahmedabad, Mumbai,
+Pune, Delhi, Bengaluru, Hyderabad, Chennai, Kolkata, Gurugram, Noida, Mohali, Chandigarh, Kochi, Indore and Jaipur) with
+10 categories each, and empty all-time and daily boards (every city has its centre, used by the location check; staff
+add more in /admin/settings). It's safe to run again on a live database.
+
+To see the boards filled in during development, run this instead:
+
+```bash
+npm run db:seed:sample
+```
+
+It adds made-up businesses in Surat, Ahmedabad and Mumbai, sample bids (every bid is at least ₹100), sample Google
+ratings, two verified Surat cafes, three verifications in progress, three paid bids with GST receipts, a listing
+waiting for review and an open report. Never run it on a database with real data; it's refused in production.
+
+On a database with real data, apply new migrations with `npm run db:deploy`, which never resets anything.
+`npm run db:migrate` is for creating migrations in development, and `npm run db:reset` deletes everything (it asks first).
 
 There are no accounts: anyone can bid. Owners paste their Instagram handle, Facebook page or website into the claim bar
 at the top of a board. The link is checked online as they type (`src/lib/online-check.ts`): a real Instagram
@@ -97,7 +108,7 @@ an audit log entry (FR-PAY-05).
 
 ```
 prisma/schema.prisma        data model (FSD section 7)
-prisma/seed.ts              launch cities, categories, boards, seed listings
+prisma/seed.ts              launch cities, categories and boards; made-up sample data with --sample
 src/lib/ranking.ts          rank order, tie-break, price to pass (FSD section 5), pure + tested
 src/lib/time.ts             daily/weekly period bounds in the city's time zone, pure + tested
 src/lib/boards.ts           current period (opened lazily at reset), ranked board from the bid ledger

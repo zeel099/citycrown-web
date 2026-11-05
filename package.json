@@ -9,8 +9,10 @@
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:reset": "prisma migrate reset --force",
+    "db:seed:sample": "prisma db seed -- --sample",
+    "db:reset": "prisma migrate reset",
     "ratings:refresh": "tsx scripts/refresh-google-ratings.ts",
     "avatars:refresh": "tsx scripts/refresh-avatars.ts"
   },

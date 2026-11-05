@@ -1,15 +1,15 @@
-// Launch data from the FSD: Indian cities, 10 categories, free seed listings (FR-ADM-04).
-// Sample bids and demo accounts are added outside production only, so boards and
-// account pages don't look empty in development.
+// Launch data from the FSD: Indian cities, 10 categories and their boards. Safe to run again on a live database.
+// `npm run db:seed:sample` also adds made-up businesses, bids and demo accounts, so boards and
+// admin screens don't look empty in development. Never run that on a database with real data.
 import crypto from "node:crypto";
 import { PrismaClient, type BoardType } from "@prisma/client";
 import { periodBounds } from "../src/lib/time";
 import { normalizeName, slugify } from "../src/lib/slug";
 
 const db = new PrismaClient();
-const DEV = process.env.NODE_ENV !== "production";
+const SAMPLE = process.argv.includes("--sample");
 
-// Pune and the other later cities open with boards but no listings yet (the "new city" empty state).
+// In the sample data, Pune and the other later cities keep empty boards (the "new city" empty state).
 const india = (name: string, latitude: number, longitude: number, seedListings = false) =>
   ({ name, country: "IN", currency: "INR", timeZone: "Asia/Kolkata", latitude, longitude, seedListings });
 const CITIES = [
@@ -58,6 +58,8 @@ function rng(seed: number) {
 const hash = (key: string) => [...key].reduce((h, ch) => h * 31 + ch.charCodeAt(0), 7) >>> 0;
 
 async function main() {
+  if (SAMPLE && process.env.NODE_ENV === "production") throw new Error("Sample data can't be added in production.");
+
   for (const name of [...Object.keys(CATEGORIES), ...BANNED]) {
     const banned = BANNED.includes(name);
     await db.category.upsert({ where: { slug: slugify(name) }, create: { name, slug: slugify(name), banned }, update: { banned } });
@@ -74,7 +76,7 @@ async function main() {
           create: { cityId: city.id, categoryId: category.id, type },
           update: {},
         });
-        if (!seedListings) continue;
+        if (!SAMPLE || !seedListings) continue;
         const rand = rng(hash(`${c.name}|${catName}|rating`));
         for (const [i, name] of names.entries()) {
           const slug = slugify(name);
@@ -90,20 +92,21 @@ async function main() {
               linkCheckedAt: new Date(),
               websiteUrl: i % 3 !== 1 ? `https://example.com/${slug}` : null,
               instagramUrl: i % 2 === 0 ? `https://instagram.com/${slug.replace(/-/g, "")}` : null,
-              // Sample locations around the city centre for development; real owners give theirs.
-              ...(DEV ? sampleLocation(c, `${catName}|${name}`) : {}),
-              // Sample Google ratings for development; production fills these from Google Places.
-              ...(DEV ? { googleRating: Math.round((4 + rand()) * 10) / 10, googleReviews: 20 + Math.round(rand() * 600) } : {}),
+              // Sample locations around the city centre; real owners give theirs.
+              ...sampleLocation(c, `${catName}|${name}`),
+              // Sample Google ratings; a live site fills these from Google Places.
+              googleRating: Math.round((4 + rand()) * 10) / 10,
+              googleReviews: 20 + Math.round(rand() * 600),
             },
             update: {},
           });
         }
-        if (DEV) await sampleBids(board.id, type, c.timeZone, `${c.name}|${catName}|${type}`);
+        await sampleBids(board.id, type, c.timeZone, `${c.name}|${catName}|${type}`);
       }
     }
   }
 
-  if (DEV) await demoAccounts();
+  if (SAMPLE) await demoAccounts();
   console.log("Seeded", await db.city.count(), "cities,", await db.board.count(), "boards,", await db.listing.count(), "listings");
 }
 
