@@ -1,0 +1,298 @@
+// Data model from FSD section 7. Rank is never stored: it is derived from confirmed bids.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model City {
+  id        String  @id @default(cuid())
+  name      String
+  slug      String  @unique
+  country   String
+  currency  String // ISO 4217, one per city (BR-10)
+  timeZone  String // IANA, used for daily/weekly resets (BR-11)
+  active    Boolean @default(true)
+  latitude  Float? // city centre: biases address search and checks business locations are in the city
+  longitude Float?
+  boards    Board[]
+}
+
+model Category {
+  id     String  @id @default(cuid())
+  name   String
+  slug   String  @unique
+  banned Boolean @default(false) // FR-LST-04
+  active Boolean @default(true)
+  boards Board[]
+}
+
+enum BoardType {
+  ALL_TIME
+  DAILY
+  WEEKLY
+}
+
+model Board {
+  id         String    @id @default(cuid())
+  cityId     String
+  categoryId String
+  type       BoardType @default(ALL_TIME)
+  topN       Int       @default(7) // FR-BRD-03, 5 to 7
+  step       Int       @default(10000) // minor units, ₹100: passing a listing costs its total + this (BR-05)
+  minBid     Int       @default(10000) // minor units, ₹100
+  active     Boolean   @default(true)
+  city       City      @relation(fields: [cityId], references: [id])
+  category   Category  @relation(fields: [categoryId], references: [id])
+  periods    Period[]
+  listings   Listing[]
+
+  @@unique([cityId, categoryId, type])
+}
+
+enum PeriodStatus {
+  OPEN
+  CLOSED
+}
+
+model Period {
+  id       String       @id @default(cuid())
+  boardId  String
+  startsAt DateTime
+  endsAt   DateTime?
+  status   PeriodStatus @default(OPEN)
+  board    Board        @relation(fields: [boardId], references: [id])
+  bids     Bid[]
+
+  @@unique([boardId, startsAt])
+}
+
+enum ListingStatus {
+  AWAITING_PAYMENT // pasted into the claim bar; goes LIVE when its first bid is paid
+  PENDING
+  LIVE
+  REJECTED
+  FROZEN
+  REMOVED
+}
+
+model Listing {
+  id                 String         @id @default(cuid())
+  boardId            String
+  name               String
+  normalizedName     String
+  websiteUrl         String?
+  instagramUrl       String?
+  facebookUrl        String?
+  phone              String?
+  googlePlaceId      String?
+  address            String? // where the business is, as its owner gave it; shown with a map and directions
+  latitude           Float?
+  longitude          Float?
+  status             ListingStatus  @default(PENDING)
+  rejectReason       String?
+  isSeed             Boolean        @default(false)
+  ownerUserId        String? // contact for outbid alerts, from the owner's verification
+  verifiedAt         DateTime? // set once an owner verification succeeds (Verified badge)
+  submitterEmail     String?
+  linkCheckOk        Boolean? // null = not checked yet (FR-ADM-03)
+  linkCheckNote      String?
+  linkCheckedAt      DateTime?
+  googleRating       Float? // FR-BRD-09, refreshed from Google Places
+  googleReviews      Int?
+  instagramFollowers Int? // from the business's public Instagram profile, refreshed when it's paid for
+  followersCheckedAt DateTime?
+  lastOutbidAlertAt  DateTime? // FR-ACC-02, at most one alert per hour
+  createdAt          DateTime       @default(now())
+  board              Board          @relation(fields: [boardId], references: [id])
+  owner              User?          @relation(fields: [ownerUserId], references: [id])
+  bids               Bid[]
+  events             Event[]
+  reports            Report[]
+  verifications      Verification[]
+  avatar             ListingAvatar?
+
+  @@unique([boardId, normalizedName]) // FR-LST-02
+  @@index([boardId, status])
+}
+
+/// The business's Instagram or Facebook profile picture, or its website's icon,
+/// saved once its first bid is paid. Shown on the board instead of the letter tile.
+model ListingAvatar {
+  listingId String   @id
+  bytes     Bytes // a small raster image (PNG, JPEG, WebP, GIF or ICO), at most 256 KB
+  type      String // its MIME type
+  sourceUrl String // the business link it came from
+  updatedAt DateTime @updatedAt
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  BIDDER
+  OWNER
+  ADMIN
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String?        @unique
+  phone         String?        @unique
+  name          String?
+  role          Role           @default(BIDDER)
+  bids          Bid[]
+  listings      Listing[]
+  verifications Verification[]
+}
+
+enum VerificationMethod {
+  WEBSITE
+  INSTAGRAM
+  FACEBOOK
+}
+
+enum VerificationStatus {
+  PENDING // waiting for the owner to publish the code
+  IN_REVIEW // automatic check couldn't read the page; staff check by hand
+  VERIFIED
+  REJECTED
+}
+
+/// Owner proving control of a listing's website or social profile. No account is
+/// needed: publishing the listing's code on its own link is the proof.
+model Verification {
+  id               String             @id @default(cuid())
+  listingId        String             @unique
+  userId           String? // optional contact email, for review updates and outbid alerts
+  method           VerificationMethod
+  code             String // e.g. BITC-4V8DFH34
+  status           VerificationStatus @default(PENDING)
+  lastCheckedAt    DateTime?
+  lastCheckNote    String?
+  // Location the owner gave while verifying; saved on the business once verification passes.
+  pendingAddress   String?
+  pendingLatitude  Float?
+  pendingLongitude Float?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  listing          Listing            @relation(fields: [listingId], references: [id])
+  user             User?              @relation(fields: [userId], references: [id])
+
+  @@index([status])
+}
+
+/// Sequential tax invoice numbers per Indian financial year, e.g. BITC/2627/000005.
+model InvoiceCounter {
+  fy   String @id // "2627" = April 2026 to March 2027
+  last Int    @default(0)
+}
+
+enum BidStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REVERSED
+}
+
+model Bid {
+  id          String    @id @default(cuid())
+  listingId   String
+  periodId    String
+  userId      String?
+  guestEmail  String?
+  amount      Int // minor units
+  currency    String
+  displayName String? // null = Anonymous (FR-BID-06)
+  status      BidStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+  listing     Listing   @relation(fields: [listingId], references: [id])
+  period      Period    @relation(fields: [periodId], references: [id])
+  user        User?     @relation(fields: [userId], references: [id])
+  payment     Payment?
+
+  @@index([periodId, status])
+  @@index([listingId, status])
+}
+
+enum Gateway {
+  RAZORPAY
+  STRIPE
+  MOCK
+}
+
+model Payment {
+  id                String    @id @default(cuid())
+  bidId             String    @unique
+  gateway           Gateway
+  gatewayRef        String // Razorpay order id / Stripe checkout session id
+  gatewayPaymentId  String? // Razorpay payment id / Stripe payment intent id
+  fees              Int?
+  tax               Int?
+  invoiceNo         String?   @unique
+  receiptKey        String?   @unique // unguessable part of the receipt link emailed to the bidder
+  webhookVerifiedAt DateTime?
+  createdAt         DateTime  @default(now())
+  bid               Bid       @relation(fields: [bidId], references: [id])
+
+  @@unique([gateway, gatewayRef]) // NFR-03: a duplicate webhook never double-counts
+}
+
+enum EventType {
+  VIEW
+  CLICK_WEBSITE
+  CLICK_INSTAGRAM
+  CLICK_FACEBOOK
+  CALL
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  listingId   String
+  type        EventType
+  sessionHash String?
+  createdAt   DateTime  @default(now())
+  listing     Listing   @relation(fields: [listingId], references: [id])
+
+  @@index([listingId, type, createdAt])
+}
+
+/// One row per visitor per day in the site time zone, for "visitors today" and, by lastSeenAt,
+/// "online now" in the header. visitor is the daily, non-reversible hash from lib/events; no IP is stored.
+model Visit {
+  day         String // "2026-11-04"
+  visitor     String
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@id([day, visitor])
+  @@index([lastSeenAt])
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+}
+
+model Report {
+  id              String       @id @default(cuid())
+  listingId       String
+  reason          String
+  reporterContact String?
+  status          ReportStatus @default(OPEN)
+  createdAt       DateTime     @default(now())
+  listing         Listing      @relation(fields: [listingId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  target    String
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now())
+}

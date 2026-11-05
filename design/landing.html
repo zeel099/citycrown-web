@@ -1,0 +1,523 @@
+<title>Best in the City</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: city signage. A live board is the hero; quiet single-column sections below, one marigold accent for "rank 1 / pay". */
+:root{
+  --paper:#F2F3F7; --surface:#FFFFFF; --ink:#14172B; --muted:#565C75; --line:#D8DBE6;
+  --marigold:#F0A202; --marigold-soft:#FCEBC4; --marigold-ink:#7A4E00; --good:#1F7A4D;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0E1120; --surface:#171B2F; --ink:#ECEEF6; --muted:#A3A9C2; --line:#2A2F49;
+  --marigold:#FFB627; --marigold-soft:#3A2D0E; --marigold-ink:#FFCB5C; --good:#5BC98F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0E1120; --surface:#171B2F; --ink:#ECEEF6; --muted:#A3A9C2; --line:#2A2F49;
+  --marigold:#FFB627; --marigold-soft:#3A2D0E; --marigold-ink:#FFCB5C; --good:#5BC98F; color-scheme:dark}
+
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.inner{max-width:1160px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--marigold);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* nav */
+.nav{padding-block:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none}
+.brand b{font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:.02em;text-transform:uppercase}
+.brand span{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold-ink);background:var(--marigold-soft);padding:2px 7px;border-radius:4px}
+.nav nav{display:flex;gap:20px;flex-wrap:wrap;font-size:14px;font-weight:500}
+.nav nav a{text-decoration:none;color:var(--muted)}
+.nav nav a:hover{color:var(--ink)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 15px/1 var(--body);padding:13px 20px;border-radius:8px;border:1px solid transparent;cursor:pointer;text-decoration:none}
+.btn-pay{background:var(--marigold);color:#1B1300}
+.btn-pay:hover{filter:brightness(1.05)}
+.btn-pay:disabled{opacity:.45;cursor:not-allowed}
+.btn-line{border-color:var(--line);color:var(--ink);background:transparent}
+.btn-line:hover{border-color:var(--ink)}
+
+/* hero */
+.hero{display:grid;gap:40px;padding-block:28px 72px;align-items:start}
+@media (min-width:980px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:56px;padding-top:48px}}
+.hero-copy{display:flex;flex-direction:column;gap:22px;min-width:0}
+.hero h1{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(52px,8.4vw,104px);line-height:.88;letter-spacing:.005em}
+.hero h1 em{font-style:normal;color:var(--marigold-ink)}
+.hero .lead{font-size:18px;max-width:34em;color:var(--muted)}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:8px}
+.facts div{background:var(--paper);padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.facts strong{font-family:var(--display);font-weight:700;font-size:26px;line-height:1}
+.facts span{font-size:13px;color:var(--muted)}
+@media (max-width:520px){.facts{grid-template-columns:1fr}}
+
+/* board */
+.board{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px -24px rgba(20,23,43,.35);min-width:0;overflow:hidden}
+.board-head{padding:18px 18px 0;display:flex;flex-direction:column;gap:14px}
+.pickers{display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font:500 13px/1 var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.path{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+.path h2{font-family:var(--display);font-weight:900;font-size:clamp(30px,4.4vw,44px);line-height:.9;text-transform:uppercase}
+.path h2 .arrow{color:var(--marigold)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 12px/1 var(--body);padding:8px 11px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--marigold-soft);color:var(--marigold-ink)}
+.disclose{font-size:12.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.reset{font-family:var(--mono);font-size:12px;color:var(--marigold-ink)}
+
+.rows{list-style:none;margin:12px 0 0;padding:0}
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--line);cursor:pointer;background:var(--surface);position:relative}
+.row:hover{background:color-mix(in srgb,var(--marigold-soft) 40%,var(--surface))}
+.row[aria-selected="true"]{background:var(--marigold-soft)}
+.row .rk{font-family:var(--display);font-weight:900;font-size:36px;line-height:1;text-align:center;color:var(--muted)}
+.row.first .rk{color:var(--marigold-ink)}
+.row.first{box-shadow:inset 4px 0 0 var(--marigold)}
+.row .who{min-width:0;display:flex;flex-direction:column;gap:3px}
+.row .name{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .meta{font-size:12.5px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row .amt{text-align:right;display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.row .amt .mono{font-size:17px;font-weight:600}
+.row.seed .amt .mono{color:var(--muted);font-weight:500}
+.more{padding:14px 18px 6px;border-top:1px solid var(--line)}
+.rows.compact .row{padding-block:8px}
+.rows.compact .row .rk{font-size:22px}
+.rows.compact .row .name{font-size:14.5px}
+
+/* bid panel */
+.bid{border-top:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px;background:var(--paper)}
+.bid h3{font-size:17px}
+.bid .opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{font:500 13.5px/1.2 var(--body);padding:10px 12px;border-radius:8px;border:1px dashed var(--marigold);background:var(--surface);color:var(--ink);cursor:pointer;text-align:left}
+.opt b{font-family:var(--mono);font-weight:600}
+.opt[aria-pressed="true"]{border-style:solid;background:var(--marigold-soft)}
+.amount{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.amount label{font-size:13px;color:var(--muted)}
+.amount .field{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding-left:10px}
+.amount input{width:110px;border:0;background:transparent;color:var(--ink);font:600 16px var(--mono);padding:10px}
+.amount input:focus{outline:none}
+.amount .field:focus-within{border-color:var(--marigold)}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted)}
+.check input{margin-top:3px;accent-color:var(--marigold)}
+.bid .foot{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bid .note{font-size:12px;color:var(--muted)}
+.hint{padding:14px 18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted);background:var(--paper)}
+
+/* sections */
+section.band{padding-block:72px;border-top:1px solid var(--line)}
+.sec-head{display:flex;flex-direction:column;gap:12px;max-width:44em;margin-bottom:36px}
+.sec-head h2{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(36px,5vw,56px);line-height:.92}
+.sec-head p{color:var(--muted);font-size:17px}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.steps li{display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--ink);padding-top:14px}
+.steps .n{font-family:var(--mono);font-size:13px;color:var(--marigold-ink);font-weight:600}
+.steps h3{font-size:19px}
+.steps p{color:var(--muted);font-size:15px}
+
+.split{display:grid;gap:40px;align-items:start}
+@media (min-width:900px){.split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px}}
+.price-callout{font-family:var(--display);font-weight:900;font-size:clamp(44px,6vw,72px);line-height:.9;text-transform:uppercase}
+.price-callout .mono{font-family:var(--mono);font-weight:600;font-size:.62em;color:var(--marigold-ink);letter-spacing:-.02em}
+.ticks{list-style:none;padding:0;margin:20px 0 0;display:flex;flex-direction:column;gap:12px}
+.ticks li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;font-size:15.5px}
+.ticks li::before{content:"";width:10px;height:10px;margin-top:7px;border-radius:2px;background:var(--marigold)}
+.stats{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.stats-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.stats-head b{font-size:16px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.tile .mono{font-size:24px;font-weight:600}
+.tile span{font-size:12.5px;color:var(--muted)}
+.spark{width:100%;height:auto;display:block}
+.spark text{font:500 11px var(--mono);fill:var(--muted)}
+
+.types{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.type{padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.type h3{font-size:18px}
+.type p{color:var(--muted);font-size:15px}
+.type .mono{font-size:13px;color:var(--marigold-ink)}
+
+.trust{list-style:none;padding:0;margin:0;display:grid;gap:0;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));border-top:1px solid var(--line)}
+.trust li{padding:18px 18px 18px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.trust b{font-size:16px}
+.trust span{color:var(--muted);font-size:14.5px}
+
+.cities{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.city{font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;padding:8px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.city small{font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--good);margin-left:8px;vertical-align:middle}
+
+/* form */
+.form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.form .full{grid-column:1/-1}
+@media (max-width:620px){.form{grid-template-columns:1fr}}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld label{font-size:13px;font-weight:600}
+.fld input,.fld select{font:15px var(--body);padding:11px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);width:100%;box-sizing:border-box}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--marigold)}
+.fld .err{font-size:12.5px;color:#C2410C}
+.form-msg{font-size:14px;padding:12px;border-radius:8px;background:var(--marigold-soft);color:var(--ink)}
+
+footer{border-top:1px solid var(--line);padding-block:32px 48px;font-size:13.5px;color:var(--muted)}
+footer .inner{display:flex;flex-direction:column;gap:10px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:12px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px);box-sizing:border-box;z-index:20}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="inner">
+  <header class="nav">
+    <a class="brand" href="#top" id="top"><b>Best in the City</b><span>Ranked by bids</span></a>
+    <nav aria-label="Sections">
+      <a href="#how">How ranking works</a>
+      <a href="#business">For businesses</a>
+      <a href="#trust">Transparency</a>
+      <a href="#add">Add your business</a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Now open in Surat, Ahmedabad and Mumbai</p>
+      <h1>Your city's top 7, <em>ranked in public</em> by bids.</h1>
+      <p class="lead">One board for every city and category. Anyone can add money to a local business, owners and fans alike. The highest total sits on top, and every amount is on show.</p>
+      <div class="ctas">
+        <a class="btn btn-pay" href="#add">Add your business</a>
+        <a class="btn btn-line" href="#how">How ranking works</a>
+      </div>
+      <div class="facts">
+        <div><strong class="mono" style="font-family:var(--display)">₹10</strong><span>over the spot above you moves you up</span></div>
+        <div><strong>Cumulative</strong><span>every bid adds to the listing's total</span></div>
+        <div><strong>Labelled</strong><span>every entry is marked Sponsored</span></div>
+      </div>
+    </div>
+
+    <div class="board" aria-label="Sample board">
+      <div class="board-head">
+        <div class="pickers">
+          <div class="chips" id="cityChips" role="group" aria-label="City"></div>
+          <div class="chips" id="catChips" role="group" aria-label="Category"></div>
+        </div>
+        <div class="path">
+          <h2 id="boardTitle">Surat <span class="arrow">→</span> Cafes</h2>
+          <div class="seg" role="group" aria-label="Board period">
+            <button type="button" data-type="all" aria-pressed="true">All-time</button>
+            <button type="button" data-type="day" aria-pressed="false">Today</button>
+          </div>
+        </div>
+        <div class="disclose">
+          <span class="tag">Sponsored</span>
+          <span>Order is set by total amount paid, not by quality or reviews.</span>
+          <span class="reset" id="resetLine" hidden></span>
+        </div>
+      </div>
+      <ol class="rows" id="topRows" aria-label="Top 7"></ol>
+      <div class="more" id="moreHead"><span class="eyebrow">More on this board</span></div>
+      <ol class="rows compact" id="restRows"></ol>
+      <div class="hint" id="hint">Tap any business to see what it costs to move it up.</div>
+      <div class="bid" id="bidPanel" hidden></div>
+    </div>
+  </main>
+</div>
+
+<section class="band" id="how">
+  <div class="inner">
+    <div class="sec-head">
+      <p class="eyebrow">How ranking works</p>
+      <h2>The biggest total ranks first. That's the whole rule.</h2>
+      <p>Each city and category pair is its own board. Rank is the sum of every bid on a listing, so a small board like Surat → Cafes can be topped for a few hundred rupees.</p>
+    </div>
+    <ol class="steps">
+      <li><span class="n">Step 1</span><h3>Pick a board</h3><p>Choose a city and a category. Surat → Cafes is one board; Mumbai → Gyms is another.</p></li>
+      <li><span class="n">Step 2</span><h3>See the price to pass</h3><p>Every spot shows what it costs to move up: the total above you, minus yours, plus ₹10.</p></li>
+      <li><span class="n">Step 3</span><h3>Pay once</h3><p>Card, wallet or UPI, in rupees. Bids are final and add to the listing's total.</p></li>
+      <li><span class="n">Step 4</span><h3>The board re-ranks</h3><p>The new order appears as soon as the payment is confirmed, and a receipt goes to your email.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band" id="business">
+  <div class="inner split">
+    <div>
+      <p class="eyebrow">For local businesses</p>
+      <p class="price-callout" style="margin-top:12px">#1 on <span id="cheapBoard">Surat → Cafes</span> costs <span class="mono" id="cheapNum">₹510</span></p>
+      <p style="color:var(--muted);margin-top:14px;font-size:17px;max-width:34em">That's the price right now for an unranked listing on the sample board above. Change the board and the number follows.</p>
+      <ul class="ticks">
+        <li><span>See views and clicks to your website, Instagram and phone, so you can tell if a bid brought people in.</span></li>
+        <li><span>Claim your listing to keep your links, hours and details current.</span></li>
+        <li><span>Daily boards reset at midnight, so every shop gets a fresh shot each day.</span></li>
+        <li><span>Fans can back you too. Their bids add to your total.</span></li>
+      </ul>
+    </div>
+    <div class="stats" aria-label="Sample listing stats">
+      <div class="stats-head"><b>Monsoon Beans · last 7 days</b><span class="tag">Sample data</span></div>
+      <div class="tiles">
+        <div class="tile"><span>Board views</span><b class="mono">1,284</b></div>
+        <div class="tile"><span>Website clicks</span><b class="mono">212</b></div>
+        <div class="tile"><span>Instagram taps</span><b class="mono">96</b></div>
+        <div class="tile"><span>Calls</span><b class="mono">31</b></div>
+      </div>
+      <div>
+        <p class="eyebrow" style="margin-bottom:8px">Rank by day</p>
+        <svg class="spark" viewBox="0 0 320 96" role="img" aria-label="Rank improved from 6 to 2 over 7 days">
+          <line x1="20" y1="14" x2="310" y2="14" stroke="var(--line)"/>
+          <line x1="20" y1="78" x2="310" y2="78" stroke="var(--line)"/>
+          <text x="0" y="18">#1</text><text x="0" y="82">#7</text>
+          <polyline fill="none" stroke="var(--marigold)" stroke-width="2.5" stroke-linejoin="round" points="30,67 76,67 122,56 168,56 214,35 260,35 302,25"/>
+          <circle cx="302" cy="25" r="4.5" fill="var(--marigold)"/>
+          <text x="282" y="46">#2</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="fans">
+  <div class="inner split">
+    <div class="sec-head" style="margin:0">
+      <p class="eyebrow">For fans</p>
+      <h2>Back a place you love</h2>
+      <p>Your favourite chai stall doesn't run ads. Add ₹50 to its total, put your name or "Anonymous" on the bid, and share the board on WhatsApp or your story.</p>
+    </div>
+    <div class="types">
+      <div class="type"><h3>All-time boards</h3><p>Bids add up for good. The long-running leaders of each city.</p><span class="mono">Never resets</span></div>
+      <div class="type"><h3>Today</h3><p>Totals go back to zero at midnight. Yesterday's #1 is kept in the archive.</p><span class="mono" id="typeReset">Resets 00:00 IST</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="trust">
+  <div class="inner">
+    <div class="sec-head">
+      <p class="eyebrow">Transparency</p>
+      <h2>Paid placement, said plainly</h2>
+      <p>Rank here reflects money, not quality. We show that on every board so visitors can decide for themselves.</p>
+    </div>
+    <ul class="trust">
+      <li><b>Every entry is labelled</b><span>"Sponsored" sits beside each ranked business.</span></li>
+      <li><b>Every amount is public</b><span>You see the exact total behind each spot.</span></li>
+      <li><b>Ratings sit alongside</b><span>Google rating and review count appear next to the bid.</span></li>
+      <li><b>Listings are reviewed</b><span>Links are checked, fake or banned businesses are removed.</span></li>
+      <li><b>Bids are final</b><span>No refunds, stated before every payment.</span></li>
+      <li><b>Prices in your currency</b><span>Rupees in India, with UPI, cards and wallets.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="band" id="cities">
+  <div class="inner">
+    <div class="sec-head">
+      <p class="eyebrow">Where we're open</p>
+      <h2>Three cities first. Yours next.</h2>
+      <p>Boards launch with Cafes, Restaurants, Salons, Gyms and T-shirts. New cities open as their boards fill.</p>
+    </div>
+    <div class="cities">
+      <span class="city">Surat<small>OPEN</small></span>
+      <span class="city">Ahmedabad<small>OPEN</small></span>
+      <span class="city">Mumbai<small>OPEN</small></span>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="add">
+  <div class="inner split">
+    <div class="sec-head" style="margin:0">
+      <p class="eyebrow">Add your business</p>
+      <h2>Get on the board free</h2>
+      <p>Listing is free. Your business appears as unranked until someone bids on it. We review every new listing before it goes live, usually within a day.</p>
+    </div>
+    <form class="form" id="addForm" novalidate>
+      <div class="fld full"><label for="bizName">Business name</label><input id="bizName" name="bizName" autocomplete="organization" placeholder="e.g. Monsoon Beans"></div>
+      <div class="fld"><label for="bizCity">City</label><select id="bizCity" name="bizCity"></select></div>
+      <div class="fld"><label for="bizCat">Category</label><select id="bizCat" name="bizCat"></select></div>
+      <div class="fld full"><label for="bizLink">Website, Instagram or Facebook link</label><input id="bizLink" name="bizLink" inputmode="url" placeholder="https://instagram.com/yourshop"><span class="err" id="linkErr" hidden></span></div>
+      <div class="full"><button class="btn btn-pay" type="submit">Submit for review</button></div>
+      <div class="full form-msg" id="formMsg" role="status" hidden></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="inner">
+    <p><b style="color:var(--ink)">Best in the City</b> · Order on every board is set by payment, not by quality or reviews. Bids are non-refundable.</p>
+    <p>Design preview. Boards, businesses and figures on this page are sample data; no payments are taken.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+  const STEP = 10, TOP_N = 7;
+  const CITIES = ['Surat','Ahmedabad','Mumbai'];
+  const CATS = {
+    'Cafes':['Brew Lane','Tapi Roast Co.','Chai & Chapter','Little Filter','Monsoon Beans','The Kettle Room','Third Shelf Cafe','Cardamom Corner','Steam Street'],
+    'Restaurants':['Thali House 1952','Ghee & Grain','Coastline Kitchen','Rasoi Republic','Spice Ledger','Mithas Dining','Kesar Courtyard','Banyan Table','Saffron Lane'],
+    'Salons':['Clip Theory','Mirror Mirror Studio','Fade District','Mehendi & Co.','Gloss Lab','Shear Joy','The Parlour Edit','Bloom Hair Bar','Curl Club'],
+    'Gyms':['Iron Ghat','Pulse 24','Lift Club','Core Yard','The Squat Rack','Stride Fitness','Dumbbell Den','Kinetic House','Reps & Rest'],
+    'T-shirts':['Inkwell Tees','Loom & Letter','Printwala','Plain Cotton Co.','Graphic Gully','Tee Theory','Silk Thread Prints','Block Print Bros','Neon Stitch']
+  };
+  const LINKS = [['Website','Instagram'],['Instagram'],['Website','Facebook'],['Instagram','Facebook'],['Website']];
+
+  const state = {city:'Surat', cat:'Cafes', type:'all', selected:null, amount:0, agreed:false};
+  const boards = {};
+  let clock = 1000;
+
+  const rupee = n => '₹' + n.toLocaleString('en-IN');
+  function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+  function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+  function makeBoard(city,cat,type){
+    const r = rng(hash(city+'|'+cat+'|'+type));
+    const names = CATS[cat].slice();
+    for(let i=names.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[names[i],names[j]]=[names[j],names[i]]}
+    let total = type==='all' ? 900 + Math.round(r()*2200) : 120 + Math.round(r()*380);
+    return names.map((name,i)=>{
+      const seed = i >= names.length-2;
+      const row = {id:hash(name+city)+'-'+i, name, total: seed?0:Math.round(total/10)*10, reachedAt:i,
+        rating:(3.8+r()*1).toFixed(1), reviews:40+Math.round(r()*860), links:LINKS[Math.floor(r()*LINKS.length)]};
+      total *= .58 + r()*.3;
+      return row;
+    });
+  }
+  function board(){
+    const k = state.city+'|'+state.cat+'|'+state.type;
+    if(!boards[k]) boards[k] = makeBoard(state.city,state.cat,state.type);
+    return boards[k].sort((a,b)=>b.total-a.total || a.reachedAt-b.reachedAt);
+  }
+  function priceTo(list,item,target){
+    const cur = list.indexOf(item)+1;
+    if(cur<=target) return 0;
+    return list[target-1].total - item.total + STEP;
+  }
+
+  const $ = id => document.getElementById(id);
+  function chips(el,items,current,onPick){
+    el.innerHTML='';
+    items.forEach(v=>{
+      const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=v;
+      b.setAttribute('aria-pressed',String(v===current));
+      b.onclick=()=>onPick(v);el.appendChild(b);
+    });
+  }
+
+  function rowHTML(item,rank,list){
+    const seed = item.total===0;
+    return `<li class="row${rank===1&&!seed?' first':''}${seed?' seed':''}" data-id="${item.id}" tabindex="0" role="button" aria-selected="${state.selected===item.id}">
+      <span class="rk">${seed?'–':rank}</span>
+      <span class="who"><span class="name">${item.name}</span>
+        <span class="meta"><span>★ ${item.rating} · ${item.reviews} Google reviews</span><span>${item.links.join(' · ')}</span></span></span>
+      <span class="amt"><span class="mono">${seed?'No bids':rupee(item.total)}</span><span class="tag">${seed?'Unranked':'Sponsored'}</span></span></li>`;
+  }
+
+  function render(animate){
+    const before = {};
+    if(animate) document.querySelectorAll('.row[data-id]').forEach(el=>before[el.dataset.id]=el.getBoundingClientRect().top);
+    const list = board();
+    chips($('cityChips'),CITIES,state.city,v=>{state.city=v;state.selected=null;render()});
+    chips($('catChips'),Object.keys(CATS),state.cat,v=>{state.cat=v;state.selected=null;render()});
+    $('boardTitle').innerHTML = `${state.city} <span class="arrow">→</span> ${state.cat}`;
+    document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.type===state.type)));
+    $('resetLine').hidden = state.type!=='day';
+    $('topRows').innerHTML = list.slice(0,TOP_N).map((it,i)=>rowHTML(it,i+1,list)).join('');
+    $('restRows').innerHTML = list.slice(TOP_N).map((it,i)=>rowHTML(it,i+TOP_N+1,list)).join('');
+    $('moreHead').hidden = list.length<=TOP_N;
+    document.querySelectorAll('.row[data-id]').forEach(el=>{
+      const pick=()=>{state.selected=el.dataset.id;state.amount=0;state.agreed=false;render();$('bidPanel').scrollIntoView({block:'nearest',behavior:'smooth'})};
+      el.onclick=pick;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}};
+    });
+    renderBid(list);
+    const last = list[list.length-1];
+    $('cheapBoard').textContent = `${state.city} → ${state.cat}`;
+    $('cheapNum').textContent = rupee(priceTo(list,last,1));
+    if(animate && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.querySelectorAll('.row[data-id]').forEach(el=>{
+        const old=before[el.dataset.id]; if(old==null) return;
+        const d=old-el.getBoundingClientRect().top; if(!d) return;
+        el.style.transform=`translateY(${d}px)`;el.style.transition='none';el.style.zIndex=2;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.transition='transform .6s cubic-bezier(.2,.8,.2,1)';el.style.transform='';}));
+        el.addEventListener('transitionend',()=>{el.style.zIndex='';},{once:true});
+      });
+    }
+  }
+
+  function renderBid(list){
+    const item = list.find(x=>x.id===state.selected);
+    $('hint').hidden = !!item; $('bidPanel').hidden = !item;
+    if(!item) return;
+    const rank = list.indexOf(item)+1;
+    const targets = [];
+    if(rank>1) targets.push([rank-1, priceTo(list,item,rank-1)]);
+    if(rank>2) targets.push([1, priceTo(list,item,1)]);
+    const opts = targets.map(([t,p])=>`<button type="button" class="opt" data-amt="${p}" aria-pressed="${state.amount===p}">Reach #${t} · <b>${rupee(p)}</b></button>`).join('')
+      + (rank===1 ? `<button type="button" class="opt" data-amt="100" aria-pressed="${state.amount===100}">Widen the lead · <b>₹100</b></button>` : '')
+      + `<button type="button" class="opt" data-amt="50" aria-pressed="${state.amount===50}">Fan support · <b>₹50</b></button>`;
+    const amt = state.amount;
+    $('bidPanel').innerHTML = `
+      <div><p class="eyebrow">Back this business</p><h3>${item.name} · ${item.total? '#'+rank+' with '+rupee(item.total) : 'Unranked'}</h3></div>
+      <div class="opts">${opts}</div>
+      <div class="amount"><label for="amtInput">Or enter an amount</label>
+        <span class="field">₹<input id="amtInput" type="number" min="10" step="10" inputmode="numeric" value="${amt||''}" placeholder="10"></span></div>
+      <label class="check"><input type="checkbox" id="agree" ${state.agreed?'checked':''}> I understand bids are final and non-refundable, and that rank shows payment, not quality.</label>
+      <div class="foot"><button type="button" class="btn btn-pay" id="payBtn" ${amt>=10&&state.agreed?'':'disabled'}>Pay ${amt>=10?rupee(amt):''} with UPI or card</button>
+        <span class="note">Sample board: no payment is taken in this preview.</span></div>`;
+    $('bidPanel').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{state.amount=+b.dataset.amt;renderBid(list)});
+    const inp=$('amtInput');
+    inp.oninput=()=>{state.amount=Math.max(0,Math.floor(+inp.value||0));
+      const pay=$('payBtn');pay.disabled=!(state.amount>=10&&state.agreed);pay.textContent=`Pay ${state.amount>=10?rupee(state.amount):''} with UPI or card`;
+      $('bidPanel').querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.amt===state.amount)));};
+    $('agree').onchange=e=>{state.agreed=e.target.checked;const pay=$('payBtn');pay.disabled=!(state.amount>=10&&state.agreed)};
+    $('payBtn').onclick=()=>{
+      item.total += state.amount; item.reachedAt = clock++;
+      const paid=state.amount; state.amount=0; state.agreed=false;
+      render(true);
+      const now = board().indexOf(item)+1;
+      toast(`Sample bid of ${rupee(paid)} added. ${item.name} is now #${now} on ${state.city} → ${state.cat}.`);
+    };
+  }
+
+  let toastTimer;
+  function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,3600)}
+
+  document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{state.type=b.dataset.type;state.selected=null;render()});
+
+  function tick(){
+    const day=864e5, ist=Date.now()+5.5*36e5, rem=day-(ist%day);
+    const p=n=>String(n).padStart(2,'0');
+    const s=`${p(Math.floor(rem/36e5))}:${p(Math.floor(rem%36e5/6e4))}:${p(Math.floor(rem%6e4/1e3))}`;
+    $('resetLine').textContent=`Resets in ${s} (00:00 IST)`;
+    $('typeReset').textContent=`Next reset in ${s}`;
+  }
+  tick(); setInterval(tick,1000);
+
+  // add-business form
+  CITIES.forEach(c=>$('bizCity').add(new Option(c,c)));
+  Object.keys(CATS).forEach(c=>$('bizCat').add(new Option(c,c)));
+  $('addForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const name=$('bizName').value.trim(), link=$('bizLink').value.trim(), err=$('linkErr');
+    let ok=true; err.hidden=true;
+    if(!name){$('bizName').focus();ok=false;toast('Add your business name to continue.')}
+    else{
+      let u=null; try{u=new URL(/^https?:\/\//i.test(link)?link:'https://'+link)}catch(_){}
+      if(!link||!u||!u.hostname.includes('.')){err.textContent='Add a website, Instagram or Facebook link, for example instagram.com/yourshop.';err.hidden=false;$('bizLink').focus();ok=false}
+    }
+    if(!ok) return;
+    const m=$('formMsg');m.hidden=false;
+    m.textContent=`${name} is in the review queue for ${$('bizCity').value} → ${$('bizCat').value}. This is a design preview, so nothing was sent.`;
+  });
+
+  render();
+})();
+</script>
